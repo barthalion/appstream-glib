@@ -650,7 +650,7 @@ as_app_validate_screenshot (AsScreenshot *ss, AsAppValidateHelper *helper)
 	guint str_len;
 
 	/* relax the requirements a bit */
-	if ((helper->flags & AS_APP_VALIDATE_FLAG_RELAX) > 0) {
+	if ((helper->flags & AS_APP_VALIDATE_FLAG_STRICT) == 0) {
 		length_caption_max = 100;
 		length_caption_min = 5;
 		require_sentence_case = FALSE;

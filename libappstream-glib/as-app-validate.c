@@ -147,6 +147,7 @@ static void
 as_app_validate_description_li (const gchar *text, AsAppValidateHelper *helper)
 {
 	gboolean require_sentence_case = FALSE;
+	gboolean disallow_hyperlinks = FALSE;
 	guint str_len;
 	guint length_li_max = 500;
 	guint length_li_min = 3;
@@ -154,6 +155,7 @@ as_app_validate_description_li (const gchar *text, AsAppValidateHelper *helper)
 	/* make the requirements more strict */
 	if ((helper->flags & AS_APP_VALIDATE_FLAG_STRICT) > 0) {
 		require_sentence_case = TRUE;
+		disallow_hyperlinks = TRUE;
 		length_li_max = 250;
 	}
 
@@ -190,7 +192,7 @@ as_app_validate_description_li (const gchar *text, AsAppValidateHelper *helper)
 				     AS_PROBLEM_KIND_STYLE_INCORRECT,
 				     "<li> cannot end in '.' [%s]", text);
 	}
-	if (as_app_validate_has_hyperlink (text)) {
+	if (disallow_hyperlinks && as_app_validate_has_hyperlink (text)) {
 		ai_app_validate_add (helper,
 				     AS_PROBLEM_KIND_STYLE_INCORRECT,
 				     "<li> cannot contain a hyperlink [%s]",
@@ -208,6 +210,7 @@ static void
 as_app_validate_description_para (const gchar *text, AsAppValidateHelper *helper)
 {
 	gboolean require_sentence_case = FALSE;
+	gboolean disallow_hyperlinks = FALSE;
 	guint length_para_max = 1000;
 	guint length_para_min = 5;
 	guint str_len;
@@ -223,6 +226,7 @@ as_app_validate_description_para (const gchar *text, AsAppValidateHelper *helper
 	/* make the requirements more strict */
 	if ((helper->flags & AS_APP_VALIDATE_FLAG_STRICT) > 0) {
 		require_sentence_case = TRUE;
+		disallow_hyperlinks = TRUE;
 	}
 
 	/* relax the requirements a bit */
@@ -260,7 +264,7 @@ as_app_validate_description_para (const gchar *text, AsAppValidateHelper *helper
 				     AS_PROBLEM_KIND_STYLE_INCORRECT,
 				     "<p> should not start with 'This application'");
 	}
-	if (as_app_validate_has_hyperlink (text)) {
+	if (disallow_hyperlinks && as_app_validate_has_hyperlink (text)) {
 		ai_app_validate_add (helper,
 				     AS_PROBLEM_KIND_STYLE_INCORRECT,
 				     "<p> cannot contain a hyperlink [%s]",

@@ -1322,12 +1322,15 @@ as_app_validate (AsApp *app, guint32 flags, GError **error)
 	if (!as_app_validate_setup_networking (helper, error))
 		return NULL;
 
-	/* invalid component type */
-	if (as_app_get_kind (app) == AS_APP_KIND_UNKNOWN) {
+	switch (as_app_get_kind (app)) {
+	case AS_APP_KIND_UNKNOWN:
+	case AS_APP_KIND_GENERIC:
 		ai_app_validate_add (helper,
-				     AS_PROBLEM_KIND_ATTRIBUTE_INVALID,
-				     "<component> has invalid type attribute");
+			AS_PROBLEM_KIND_ATTRIBUTE_INVALID,
+			"<component> has invalid type attribute");
 
+	default:
+		break;
 	}
 	as_app_validate_check_id (helper, as_app_get_id (app));
 

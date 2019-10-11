@@ -232,10 +232,12 @@ as_app_validate_description_para (const gchar *text, AsAppValidateHelper *helper
 	}
 
 	/* previous was short */
-	if (helper->previous_para_was_short) {
-		ai_app_validate_add (helper,
-				     AS_PROBLEM_KIND_STYLE_INCORRECT,
-				     "<p> is too short [%s]", text);
+	if ((helper->flags & AS_APP_VALIDATE_FLAG_STRICT) > 0) {
+		if (helper->previous_para_was_short) {
+			ai_app_validate_add (helper,
+					AS_PROBLEM_KIND_STYLE_INCORRECT,
+					"<p> is too short [%s]", text);
+		}
 	}
 	helper->previous_para_was_short = FALSE;
 

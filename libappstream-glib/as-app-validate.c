@@ -209,7 +209,7 @@ as_app_validate_description_para (const gchar *text, AsAppValidateHelper *helper
 {
 	gboolean require_sentence_case = FALSE;
 	guint length_para_max = 1000;
-	guint length_para_min = 10;
+	guint length_para_min = 5;
 	guint str_len;
 
 	/* empty */
@@ -848,7 +848,7 @@ as_app_validate_release (AsApp *app,
 {
 	const gchar *tmp;
 	guint64 timestamp;
-	guint number_para_max = 10;
+	guint number_para_max = 15;
 	guint number_para_min = 0;
 	gboolean required_timestamp = TRUE;
 	const guint64 MAX_TZ_OFFSET = 14 * 60 * 60; /* UTC+14 is the biggest offset */

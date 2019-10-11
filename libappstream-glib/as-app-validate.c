@@ -434,10 +434,14 @@ ai_app_validate_image_check (AsImage *im, AsAppValidateHelper *helper)
 	g_autoptr(GInputStream) stream = NULL;
 	g_autoptr(SoupMessage) msg = NULL;
 	g_autoptr(SoupURI) base_uri = NULL;
+	gboolean require_size = FALSE;
+	gboolean check_padding = FALSE;
 
 	/* make the requirements more strict */
 	if ((helper->flags & AS_APP_VALIDATE_FLAG_STRICT) > 0) {
 		require_correct_aspect_ratio = TRUE;
+		require_size = TRUE;
+		check_padding = TRUE;
 	}
 
 	/* relax the requirements a bit */
@@ -536,47 +540,51 @@ ai_app_validate_image_check (AsImage *im, AsAppValidateHelper *helper)
 	}
 
 	/* check size is reasonable */
-	if (screenshot_width < ss_size_width_min) {
-		ai_app_validate_add (helper,
-				     AS_PROBLEM_KIND_ATTRIBUTE_INVALID,
-				     "<screenshot> width (%u) too small [%s] minimum is %upx",
-				     screenshot_width, url, ss_size_width_min);
-	}
-	if (screenshot_height < ss_size_height_min) {
-		ai_app_validate_add (helper,
-				     AS_PROBLEM_KIND_ATTRIBUTE_INVALID,
-				     "<screenshot> height too small [%s] minimum is %upx",
-				     url, ss_size_height_min);
-	}
-	if (screenshot_width > ss_size_width_max) {
-		ai_app_validate_add (helper,
-				     AS_PROBLEM_KIND_ATTRIBUTE_INVALID,
-				     "<screenshot> width too large [%s] maximum is %upx",
-				     url, ss_size_width_max);
-	}
-	if (screenshot_height > ss_size_height_max) {
-		ai_app_validate_add (helper,
-				     AS_PROBLEM_KIND_ATTRIBUTE_INVALID,
-				     "<screenshot> height too large [%s] maximum is %upx",
-				     url, ss_size_height_max);
+	if (require_size) {
+		if (screenshot_width < ss_size_width_min) {
+			ai_app_validate_add (helper,
+					AS_PROBLEM_KIND_ATTRIBUTE_INVALID,
+					"<screenshot> width (%u) too small [%s] minimum is %upx",
+					screenshot_width, url, ss_size_width_min);
+		}
+		if (screenshot_height < ss_size_height_min) {
+			ai_app_validate_add (helper,
+					AS_PROBLEM_KIND_ATTRIBUTE_INVALID,
+					"<screenshot> height too small [%s] minimum is %upx",
+					url, ss_size_height_min);
+		}
+		if (screenshot_width > ss_size_width_max) {
+			ai_app_validate_add (helper,
+					AS_PROBLEM_KIND_ATTRIBUTE_INVALID,
+					"<screenshot> width too large [%s] maximum is %upx",
+					url, ss_size_width_max);
+		}
+		if (screenshot_height > ss_size_height_max) {
+			ai_app_validate_add (helper,
+					AS_PROBLEM_KIND_ATTRIBUTE_INVALID,
+					"<screenshot> height too large [%s] maximum is %upx",
+					url, ss_size_height_max);
+		}
 	}
 
 	/* check padding */
-	as_image_set_pixbuf (im, pixbuf);
-	alpha_flags = as_image_get_alpha_flags (im);
-	if ((alpha_flags & AS_IMAGE_ALPHA_FLAG_TOP) > 0||
-	    (alpha_flags & AS_IMAGE_ALPHA_FLAG_BOTTOM) > 0) {
-		ai_app_validate_add (helper,
-				     AS_PROBLEM_KIND_STYLE_INCORRECT,
-				     "<image> has vertical padding [%s]",
-				     url);
-	}
-	if ((alpha_flags & AS_IMAGE_ALPHA_FLAG_LEFT) > 0||
-	    (alpha_flags & AS_IMAGE_ALPHA_FLAG_RIGHT) > 0) {
-		ai_app_validate_add (helper,
-				     AS_PROBLEM_KIND_STYLE_INCORRECT,
-				     "<image> has horizontal padding [%s]",
-				     url);
+	if (check_padding) {
+		as_image_set_pixbuf (im, pixbuf);
+		alpha_flags = as_image_get_alpha_flags (im);
+		if ((alpha_flags & AS_IMAGE_ALPHA_FLAG_TOP) > 0||
+		(alpha_flags & AS_IMAGE_ALPHA_FLAG_BOTTOM) > 0) {
+			ai_app_validate_add (helper,
+					AS_PROBLEM_KIND_STYLE_INCORRECT,
+					"<image> has vertical padding [%s]",
+					url);
+		}
+		if ((alpha_flags & AS_IMAGE_ALPHA_FLAG_LEFT) > 0||
+		(alpha_flags & AS_IMAGE_ALPHA_FLAG_RIGHT) > 0) {
+			ai_app_validate_add (helper,
+					AS_PROBLEM_KIND_STYLE_INCORRECT,
+					"<image> has horizontal padding [%s]",
+					url);
+		}
 	}
 
 	/* check aspect ratio */
